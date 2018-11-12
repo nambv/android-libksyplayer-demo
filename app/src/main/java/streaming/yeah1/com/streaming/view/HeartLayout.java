@@ -55,7 +55,7 @@ public class HeartLayout extends RelativeLayout implements View.OnClickListener 
     private Bitmap bitmap;
 
     private void findViewById(Context context) {
-        LayoutInflater.from(context).inflate(R.layout.ly_periscope, this);
+        LayoutInflater.from(context).inflate(R.layout.layout_periscope, this);
         bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.icon_like_png);
         dHeight = bitmap.getWidth() / 2;
         dWidth = bitmap.getHeight() / 2;

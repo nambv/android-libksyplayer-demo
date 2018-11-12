@@ -72,8 +72,8 @@ public class FloatWindowView extends RelativeLayout {
 
     public void addFloatingWindow(KSYTextureView ksyTextureView) {
         video_content.addView(ksyTextureView);
-        FloatingPlayer.getInstance().getKSYTextureView().setVisibility(View.VISIBLE);
-        FloatingPlayer.getInstance().getKSYTextureView().setComeBackFromShare(true);
+        FloatingPlayer.Companion.getInstance().getKsyTextureView().setVisibility(View.VISIBLE);
+        FloatingPlayer.Companion.getInstance().getKsyTextureView().setComeBackFromShare(true);
 
     }
 

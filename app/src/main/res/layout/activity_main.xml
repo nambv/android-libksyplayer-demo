@@ -32,25 +32,13 @@
                 android:textSize="14sp"/>
 
         <ImageView
-                android:id="@+id/screen_shot"
+                android:id="@+id/screen_cap"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentTop="true"
                 android:layout_marginEnd="20dp"
                 android:layout_marginTop="198dp"
-                android:clickable="true"
-                android:src="@drawable/screen_shot"
-                tools:ignore="ContentDescription"/>
-
-        <ImageView
-                android:id="@+id/screen_cap"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_below="@+id/screen_shot"
-                android:layout_marginEnd="20dp"
-                android:layout_marginTop="37dp"
                 android:clickable="true"
                 android:src="@drawable/screen_cap"
                 tools:ignore="ContentDescription"/>
