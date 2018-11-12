@@ -8,7 +8,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "streaming.yeah1.com.streaming"
-        minSdkVersion 21
+        minSdkVersion 19
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
@@ -35,6 +35,4 @@ dependencies {
     implementation 'com.ksyun.media:libksyplayer-java:2.1.2'
     implementation 'com.ksyun.media:libksyplayer-armv7a:2.1.2'
     implementation 'com.ksyun.media:libksyplayer-arm64:2.1.2'
-
-    implementation 'com.dyhdyh.loadingbar:loadingbar:1.4.4'
 }
