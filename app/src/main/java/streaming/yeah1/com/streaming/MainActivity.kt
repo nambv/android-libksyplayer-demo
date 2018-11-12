@@ -54,11 +54,15 @@ class MainActivity : AppCompatActivity() {
 
     private var url: String = ""
 
+    private lateinit var floatingPlayer: FloatingPlayer
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setContentView(R.layout.activity_main)
         this.window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
+
+        floatingPlayer = FloatingPlayer.getInstance()
 
         url = "rtsp://184.72.239.149/vod/mp4:BigBuckBunny_115k.mov"
         mSettings = getSharedPreferences("SETTINGS", Context.MODE_PRIVATE)
@@ -67,11 +71,10 @@ class MainActivity : AppCompatActivity() {
         initView()
         initFile()
 
-        if (FloatingPlayer.getInstance().ksyTextureView == null) {
+        if (floatingPlayer.ksyTextureView == null)
             startToPlay()
-        } else {
+        else
             resumeToPlay()
-        }
     }
 
     override fun onRestart() {
@@ -82,14 +85,14 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         if (toFloatingWindow) {
-            video.removeView(FloatingPlayer.getInstance().ksyTextureView)
-            if (FloatingPlayer.getInstance().ksyTextureView != null) {
-                FloatingPlayer.getInstance().ksyTextureView.setOnTouchListener(null)
-                FloatingPlayer.getInstance()
+            video.removeView(floatingPlayer.ksyTextureView)
+            if (floatingPlayer.ksyTextureView != null) {
+                floatingPlayer.ksyTextureView.setOnTouchListener(null)
+                floatingPlayer
                     .ksyTextureView.setVideoScalingMode(KSYMediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING)
             }
         } else {
-            FloatingPlayer.getInstance().ksyTextureView.pause()
+            floatingPlayer.ksyTextureView.pause()
         }
     }
 
@@ -107,7 +110,7 @@ class MainActivity : AppCompatActivity() {
         verticalSeekBar.visibility = View.GONE
         verticalSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, i: Int, b: Boolean) {
-                FloatingPlayer.getInstance().ksyTextureView.setVolume(i.toFloat() / 100, i.toFloat() / 100)
+                floatingPlayer.ksyTextureView.setVolume(i.toFloat() / 100, i.toFloat() / 100)
             }
 
             override fun onStartTrackingTouch(p0: SeekBar?) = Unit
@@ -117,15 +120,15 @@ class MainActivity : AppCompatActivity() {
 
     private fun startToPlay() {
 
-        FloatingPlayer.getInstance().init(applicationContext)
-        video.addView(FloatingPlayer.getInstance().ksyTextureView)
+        floatingPlayer.init(applicationContext)
+        video.addView(floatingPlayer.ksyTextureView)
 
-        FloatingPlayer.getInstance().ksyTextureView.setOnTouchListener(touchListener)
-        FloatingPlayer.getInstance().ksyTextureView.setOnPreparedListener(preparedListener)
-        FloatingPlayer.getInstance().ksyTextureView.setOnErrorListener(errorListener)
-        FloatingPlayer.getInstance().ksyTextureView.setOnInfoListener(infoListener)
-        FloatingPlayer.getInstance().ksyTextureView.setOnCompletionListener(completionListener)
-        FloatingPlayer.getInstance().ksyTextureView.setVolume(1.0f, 1.0f)
+        floatingPlayer.ksyTextureView.setOnTouchListener(touchListener)
+        floatingPlayer.ksyTextureView.setOnPreparedListener(preparedListener)
+        floatingPlayer.ksyTextureView.setOnErrorListener(errorListener)
+        floatingPlayer.ksyTextureView.setOnInfoListener(infoListener)
+        floatingPlayer.ksyTextureView.setOnCompletionListener(completionListener)
+        floatingPlayer.ksyTextureView.setVolume(1.0f, 1.0f)
 
         startVol = 1.0f
         chooseDecode = mSettings.getString("choose_decode", "undefined")
@@ -134,14 +137,14 @@ class MainActivity : AppCompatActivity() {
         prepareTimeout = mSettings.getInt("preparetimeout", 5)
         readTimeout = mSettings.getInt("readtimeout", 30)
         if (bufferTime > 0) {
-            FloatingPlayer.getInstance().ksyTextureView.bufferTimeMax = bufferTime.toFloat()
+            floatingPlayer.ksyTextureView.bufferTimeMax = bufferTime.toFloat()
         }
 
         if (bufferSize > 0) {
-            FloatingPlayer.getInstance().ksyTextureView.setBufferSize(bufferSize)
+            floatingPlayer.ksyTextureView.setBufferSize(bufferSize)
         }
         if (prepareTimeout > 0 && readTimeout > 0) {
-            FloatingPlayer.getInstance().ksyTextureView.setTimeout(prepareTimeout, readTimeout)
+            floatingPlayer.ksyTextureView.setTimeout(prepareTimeout, readTimeout)
         }
 
         useHwDecoder = chooseDecode == Setting.USEHARD
@@ -149,13 +152,13 @@ class MainActivity : AppCompatActivity() {
         if (useHwDecoder) {
             if (KSYHardwareDecodeWhiteList.getInstance().currentStatus == KSYHardwareDecodeWhiteList.KSY_STATUS_OK) {
                 if (KSYHardwareDecodeWhiteList.getInstance().supportHardwareDecodeH264() || KSYHardwareDecodeWhiteList.getInstance().supportHardwareDecodeH265())
-                    FloatingPlayer.getInstance().ksyTextureView.setDecodeMode(KSYMediaPlayer.KSYDecodeMode.KSY_DECODE_MODE_AUTO)
+                    floatingPlayer.ksyTextureView.setDecodeMode(KSYMediaPlayer.KSYDecodeMode.KSY_DECODE_MODE_AUTO)
             }
         }
 
         try {
-            FloatingPlayer.getInstance().ksyTextureView.dataSource = url
-            FloatingPlayer.getInstance().ksyTextureView.prepareAsync()
+            floatingPlayer.ksyTextureView.dataSource = url
+            floatingPlayer.ksyTextureView.prepareAsync()
         } catch (e: IOException) {
             e.printStackTrace()
         }
@@ -167,17 +170,17 @@ class MainActivity : AppCompatActivity() {
     private fun resumeToPlay() {
         mSettings = getSharedPreferences("SETTINGS", Context.MODE_PRIVATE)
         editor = mSettings?.edit()
-        video.addView(FloatingPlayer.getInstance().ksyTextureView)
-        FloatingPlayer.getInstance().ksyTextureView.visibility = View.VISIBLE
-        FloatingPlayer.getInstance().ksyTextureView.isComeBackFromShare = true
+        video.addView(floatingPlayer.ksyTextureView)
+        floatingPlayer.ksyTextureView.visibility = View.VISIBLE
+        floatingPlayer.ksyTextureView.isComeBackFromShare = true
         editor?.putBoolean("isPlaying", true)
         editor?.apply()
-        FloatingPlayer.getInstance().ksyTextureView.setOnTouchListener(touchListener)
+        floatingPlayer.ksyTextureView.setOnTouchListener(touchListener)
     }
 
     private fun videoPlayEnd() {
-        if (FloatingPlayer.getInstance().ksyTextureView != null) {
-            FloatingPlayer.getInstance().destroy()
+        if (floatingPlayer.ksyTextureView != null) {
+            floatingPlayer.destroy()
         }
 
         editor?.putBoolean("isPlaying", false)
@@ -229,7 +232,7 @@ class MainActivity : AppCompatActivity() {
 
     private val touchListener = View.OnTouchListener { v, event ->
 
-        val videoView = FloatingPlayer.getInstance().ksyTextureView
+        val videoView = floatingPlayer.ksyTextureView
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> mTouching = false
             MotionEvent.ACTION_POINTER_DOWN -> {
@@ -285,9 +288,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val preparedListener = IMediaPlayer.OnPreparedListener {
-        FloatingPlayer.getInstance()
+        floatingPlayer
             .ksyTextureView.setVideoScalingMode(KSYMediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING)
-        FloatingPlayer.getInstance().ksyTextureView.start()
+        floatingPlayer.ksyTextureView.start()
     }
 
     private val errorListener = IMediaPlayer.OnErrorListener { _, what, _ ->
