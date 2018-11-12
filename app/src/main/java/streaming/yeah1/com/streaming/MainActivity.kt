@@ -63,6 +63,7 @@ class MainActivity : AppCompatActivity() {
         this.window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
 
         floatingPlayer = FloatingPlayer.getInstance()
+        Dialog.init(loadingProgress)
 
         url = "rtsp://184.72.239.149/vod/mp4:BigBuckBunny_115k.mov"
         mSettings = getSharedPreferences("SETTINGS", Context.MODE_PRIVATE)
@@ -86,13 +87,12 @@ class MainActivity : AppCompatActivity() {
         super.onPause()
         if (toFloatingWindow) {
             video.removeView(floatingPlayer.ksyTextureView)
-            if (floatingPlayer.ksyTextureView != null) {
-                floatingPlayer.ksyTextureView.setOnTouchListener(null)
-                floatingPlayer
-                    .ksyTextureView.setVideoScalingMode(KSYMediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING)
+            floatingPlayer.ksyTextureView?.let {
+                it.setOnTouchListener(null)
+                it.setVideoScalingMode(KSYMediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING)
             }
         } else {
-            floatingPlayer.ksyTextureView.pause()
+            floatingPlayer.ksyTextureView?.pause()
         }
     }
 
@@ -169,7 +169,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun resumeToPlay() {
         mSettings = getSharedPreferences("SETTINGS", Context.MODE_PRIVATE)
-        editor = mSettings?.edit()
+        editor = mSettings.edit()
         video.addView(floatingPlayer.ksyTextureView)
         floatingPlayer.ksyTextureView.visibility = View.VISIBLE
         floatingPlayer.ksyTextureView.isComeBackFromShare = true
@@ -230,7 +230,7 @@ class MainActivity : AppCompatActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
     }
 
-    private val touchListener = View.OnTouchListener { v, event ->
+    private val touchListener = View.OnTouchListener { _, event ->
 
         val videoView = floatingPlayer.ksyTextureView
         when (event.actionMasked) {
@@ -303,7 +303,7 @@ class MainActivity : AppCompatActivity() {
         return@OnErrorListener false
     }
 
-    private val infoListener = IMediaPlayer.OnInfoListener { iMediaPlayer, i, i1 ->
+    private val infoListener = IMediaPlayer.OnInfoListener { _, i, _ ->
         when (i) {
             IMediaPlayer.MEDIA_INFO_BUFFERING_START -> Dialog.show()
             IMediaPlayer.MEDIA_INFO_BUFFERING_END -> Dialog.dismiss()
