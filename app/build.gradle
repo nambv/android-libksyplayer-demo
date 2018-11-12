@@ -35,4 +35,6 @@ dependencies {
     implementation 'com.ksyun.media:libksyplayer-java:2.1.2'
     implementation 'com.ksyun.media:libksyplayer-armv7a:2.1.2'
     implementation 'com.ksyun.media:libksyplayer-arm64:2.1.2'
+
+    implementation 'com.github.ajalt:timberkt:1.5.1'
 }

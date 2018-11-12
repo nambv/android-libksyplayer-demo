@@ -10,12 +10,12 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.SeekBar
 import android.widget.Toast
+import com.github.ajalt.timberkt.Timber
 import com.ksyun.media.player.IMediaPlayer
 import com.ksyun.media.player.KSYHardwareDecodeWhiteList
 import com.ksyun.media.player.KSYMediaPlayer
 import kotlinx.android.synthetic.main.activity_main.*
 import streaming.yeah1.com.streaming.model.FloatingPlayer
-import streaming.yeah1.com.streaming.utils.Dialog
 import streaming.yeah1.com.streaming.utils.Setting
 import java.io.File
 import java.io.IOException
@@ -60,10 +60,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setContentView(R.layout.activity_main)
-        this.window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS)
 
         floatingPlayer = FloatingPlayer.getInstance()
-        Dialog.init(loadingProgress)
 
         url = "rtsp://184.72.239.149/vod/mp4:BigBuckBunny_115k.mov"
         mSettings = getSharedPreferences("SETTINGS", Context.MODE_PRIVATE)
@@ -94,6 +92,11 @@ class MainActivity : AppCompatActivity() {
         } else {
             floatingPlayer.ksyTextureView?.pause()
         }
+    }
+
+    override fun onDestroy() {
+        videoPlayEnd()
+        super.onDestroy()
     }
 
     private fun initFile() {
@@ -152,11 +155,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun startToPlay() {
 
+        loadingProgress.visibility = View.VISIBLE
+
         floatingPlayer.init(applicationContext)
         video.addView(floatingPlayer.ksyTextureView)
 
         floatingPlayer.ksyTextureView?.let {
-            it.setOnTouchListener(touchListener)
+            //            it.setOnTouchListener(touchListener)
             it.setOnPreparedListener(preparedListener)
             it.setOnErrorListener(errorListener)
             it.setOnInfoListener(infoListener)
@@ -212,15 +217,12 @@ class MainActivity : AppCompatActivity() {
             it.isComeBackFromShare = true
             editor?.putBoolean("isPlaying", true)
             editor?.apply()
-            it.setOnTouchListener(touchListener)
+//            it.setOnTouchListener(touchListener)
         }
     }
 
     private fun videoPlayEnd() {
-        if (floatingPlayer.ksyTextureView != null) {
-            floatingPlayer.destroy()
-        }
-
+        floatingPlayer.ksyTextureView?.let { floatingPlayer.destroy() }
         editor?.putBoolean("isPlaying", false)
         editor?.commit()
     }
@@ -326,6 +328,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val preparedListener = IMediaPlayer.OnPreparedListener { mediaplayer ->
+        loadingProgress.visibility = View.GONE
         floatingPlayer.ksyTextureView?.let {
             it.setVideoScalingMode(KSYMediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT)
             it.start()
@@ -333,6 +336,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val errorListener = IMediaPlayer.OnErrorListener { _, what, _ ->
+        loadingProgress.visibility = View.GONE
         Toast.makeText(
             this,
             "The player encountered an error, the playback has exited, the error code:$what",
@@ -344,11 +348,15 @@ class MainActivity : AppCompatActivity() {
 
     private val infoListener = IMediaPlayer.OnInfoListener { _, i, _ ->
         when (i) {
-            IMediaPlayer.MEDIA_INFO_BUFFERING_START -> Dialog.show()
-            IMediaPlayer.MEDIA_INFO_BUFFERING_END -> Dialog.dismiss()
+            IMediaPlayer.MEDIA_INFO_BUFFERING_START -> {
+            }
+            IMediaPlayer.MEDIA_INFO_BUFFERING_END -> {
+            }
         }
         return@OnInfoListener false
     }
 
-    private val completionListener = IMediaPlayer.OnCompletionListener { }
+    private val completionListener = IMediaPlayer.OnCompletionListener {
+        Timber.w { "OnCompletionListener" }
+    }
 }
