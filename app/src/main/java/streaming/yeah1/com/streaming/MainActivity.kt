@@ -2,6 +2,7 @@ package streaming.yeah1.com.streaming
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.res.Configuration
 import android.os.Bundle
 import android.os.Environment
 import android.support.v7.app.AppCompatActivity
@@ -110,36 +111,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun initView() {
 
-        setupListeners()
-
-        verticalSeekBar.visibility = View.GONE
-        verticalSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, i: Int, b: Boolean) {
-                floatingPlayer.ksyTextureView?.setVolume(i.toFloat() / 100, i.toFloat() / 100)
-            }
-
-            override fun onStartTrackingTouch(p0: SeekBar?) = Unit
-            override fun onStopTrackingTouch(p0: SeekBar?) = Unit
-        })
-    }
-
-    private fun saveVideo() {
-
-    }
-
-    private fun setupListeners() {
-
-        screen_cap.setOnClickListener {
-            if (useHwDecoder) {
-                Toast.makeText(this, "Record video to switch to soft solution", Toast.LENGTH_LONG).show()
-            } else {
-                content.visibility = View.GONE
-                screen_cap_content.visibility = View.VISIBLE
-                saveVideo()
-                screen_cap_content.setOnClickListener { }
-            }
-        }
-
         volumn.setOnClickListener {
             if (verticalSeekBar.visibility == View.VISIBLE) {
                 verticalSeekBar.visibility = View.GONE
@@ -151,6 +122,16 @@ class MainActivity : AppCompatActivity() {
         like.setOnClickListener {
 
         }
+
+        verticalSeekBar.visibility = View.GONE
+        verticalSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, i: Int, b: Boolean) {
+                floatingPlayer.ksyTextureView?.setVolume(i.toFloat() / 100, i.toFloat() / 100)
+            }
+
+            override fun onStartTrackingTouch(p0: SeekBar?) = Unit
+            override fun onStopTrackingTouch(p0: SeekBar?) = Unit
+        })
     }
 
     private fun startToPlay() {
@@ -270,6 +251,17 @@ class MainActivity : AppCompatActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS)
     }
 
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+
+        // Checks the orientation of the screen
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            Timber.w { "landscape" }
+        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            Timber.w { "portrait" }
+        }
+    }
+
     private val touchListener = View.OnTouchListener { _, event ->
 
         val videoView = floatingPlayer.ksyTextureView
@@ -343,14 +335,17 @@ class MainActivity : AppCompatActivity() {
             Toast.LENGTH_SHORT
         ).show()
         videoPlayEnd()
+        startToPlay()
         return@OnErrorListener false
     }
 
     private val infoListener = IMediaPlayer.OnInfoListener { _, i, _ ->
         when (i) {
             IMediaPlayer.MEDIA_INFO_BUFFERING_START -> {
+                Timber.w { "MEDIA_INFO_BUFFERING_START" }
             }
             IMediaPlayer.MEDIA_INFO_BUFFERING_END -> {
+                Timber.w { "MEDIA_INFO_BUFFERING_END" }
             }
         }
         return@OnInfoListener false
